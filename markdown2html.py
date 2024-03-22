@@ -9,7 +9,7 @@ This script takes two command-line arguments:
 
 If the script is called with fewer than two arguments,
 it will print an error message and exit with code 1.
-If the source file doesn't exist, it will also print an error 
+If the source file doesn't exist, it will also print an error
 message and exit with code 1.
 Otherwise, it will exit with code 0 indicating successful execution.
 """
@@ -55,7 +55,7 @@ def write_file(file_path, html_lines):
         for line in html_lines:
             file.write(line)
 
-# I will use this function later
+# To HTML Heading
 
 
 def to_html_heading(markdown_line):
@@ -71,7 +71,7 @@ def to_html_heading(markdown_line):
     markdown_heading, heading_text = markdown_line.split(' ', 1)
 
     heading_level = markdown_heading.count('#')
-    if not heading_level in range(1, 7):
+    if heading_level not in range(1, 7):
         print('Heading level must be between 1 to 6', file=sys.stderr)
         sys.exit(1)
 
