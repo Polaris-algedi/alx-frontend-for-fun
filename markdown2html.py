@@ -20,21 +20,37 @@ import os
 # Convert markdown to html
 
 
+# Convert markdown to html
 def markdown_to_html(markdown_lines):
     html_lines = []
-    html_unordered_list = []
+    html_list = []
     i = 0
     num_lines = len(markdown_lines)
     while i < num_lines:
+        # Check if the line starts with a dash (-) indicating an unordered list item
         if markdown_lines[i].startswith('-'):
+            # Collect all consecutive lines starting with a dash (-) as list items
             while i < num_lines and markdown_lines[i].startswith('-'):
-                html_unordered_list.append(markdown_lines[i][2:])
+                html_list.append(markdown_lines[i][2:])
                 i += 1
-            html_lines.extend(to_html_unordered_list(html_unordered_list))
-            html_unordered_list = []
+            # Convert the collected list items to HTML unordered list
+            html_lines.extend(to_html_unordered_list(html_list))
+            html_list = []
+        # Check if the line starts with a asterisk (*) indicating an unordered list item
+        if markdown_lines[i].startswith('*'):
+            # Collect all consecutive lines starting with a asterisk (*) as list items
+            while i < num_lines and markdown_lines[i].startswith('*'):
+                html_list.append(markdown_lines[i][2:])
+                i += 1
+            # Convert the collected list items to HTML unordered list
+            html_lines.extend(to_html_ordered_list(html_list))
+            html_list = []
+        # Check if the line starts with a hash (#) indicating a heading
         if i < num_lines and markdown_lines[i].startswith('#'):
+            # Convert the heading to HTML format
             html_lines.append(to_html_heading(markdown_lines[i]))
         elif i < num_lines:
+            # Append the line as it is if it's not a list item or heading
             html_lines.append(markdown_lines[i])
         i += 1
     return html_lines
@@ -58,7 +74,9 @@ def write_file(file_path, html_lines):
 # To HTML Heading
 
 
+# To HTML Heading
 def to_html_heading(markdown_line):
+    # Define a dictionary to map heading levels to HTML tags
     heading_dict = {
         'level_1': ['<h1>', '</h1>'],
         'level_2': ['<h2>', '</h2>'],
@@ -68,15 +86,19 @@ def to_html_heading(markdown_line):
         'level_6': ['<h6>', '</h6>'],
     }
 
+    # Split the markdown line into the heading level and heading text
     markdown_heading, heading_text = markdown_line.split(' ', 1)
 
+    # Determine the heading level based on the number of '#' characters
     heading_level = markdown_heading.count('#')
     if heading_level not in range(1, 7):
         print('Heading level must be between 1 to 6', file=sys.stderr)
         sys.exit(1)
 
+    # Get the correct HTML tags for the heading level
     correct_html_tags = heading_dict['level_{}'.format(heading_level)]
 
+    # Create the HTML heading by combining the HTML tags and heading text
     html_heading = "{}{}{}".format(
         correct_html_tags[0],
         heading_text.strip(),
@@ -85,7 +107,7 @@ def to_html_heading(markdown_line):
 
     return html_heading
 
-# To HTML Unordered List
+# To HTML UNORDERED LIST
 
 
 def to_html_unordered_list(markdown_lines):
@@ -94,6 +116,17 @@ def to_html_unordered_list(markdown_lines):
         html_lines.append('\t<li>{}</li>\n'.format(line.strip()))
 
     html_lines.append('</ul>\n')
+    return html_lines
+
+# TO HTML ORDERED LIST
+
+
+def to_html_ordered_list(markdown_lines):
+    html_lines = ['<ol>\n']
+    for line in markdown_lines:
+        html_lines.append('\t<li>{}</li>\n'.format(line.strip()))
+
+    html_lines.append('</ol>\n')
     return html_lines
 
 
