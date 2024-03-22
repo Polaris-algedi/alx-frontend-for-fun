@@ -97,14 +97,16 @@ def to_html_unordered_list(markdown_lines):
     return html_lines
 
 
-if len(sys.argv) < 3:
-    print('Usage: ./markdown2html.py README.md README.html', file=sys.stderr)
-    sys.exit(1)
-elif not os.path.exists(sys.argv[1]):
-    print('Missing {}'.format(sys.argv[1]), file=sys.stderr)
-    sys.exit(1)
-else:
-    markdown_lines = read_file(sys.argv[1])
-    html_lines = markdown_to_html(markdown_lines)
-    write_file(sys.argv[2], html_lines)
-    sys.exit(0)
+if __name__ == "__main__":
+    if len(sys.argv) < 3:
+        print('Usage: ./markdown2html.py README.md README.html',
+              file=sys.stderr)
+        sys.exit(1)
+    elif not os.path.exists(sys.argv[1]):
+        print('Missing {}'.format(sys.argv[1]), file=sys.stderr)
+        sys.exit(1)
+    else:
+        markdown_lines = read_file(sys.argv[1])
+        html_lines = markdown_to_html(markdown_lines)
+        write_file(sys.argv[2], html_lines)
+        sys.exit(0)
