@@ -17,16 +17,22 @@ Otherwise, it will exit with code 0 indicating successful execution.
 import sys
 import os
 import re
+import hashlib
+
 
 # Convert markdown to html
-
-
 def markdown_to_html(markdown_lines):
     html_lines = []
     html_list = []
     i = 0
     num_lines = len(markdown_lines)
     while i < num_lines:
+        # Convert text to MD5
+        markdown_lines[i] = convert_text_to_md5(markdown_lines[i])
+
+        # Remove 'c' from content case-insensitive
+        markdown_lines[i] = remove_c_from_content(markdown_lines[i])
+
         # Check if the line starts with a dash (-) indicating an unordered list item
         if markdown_lines[i].startswith('-'):
             # Collect all consecutive lines starting with a dash (-) as list items
@@ -231,6 +237,26 @@ def check_line_starts_and_ends_with_double_underscores(line):
 def check_line_starts_with_double_underscores(line):
     pattern = r"^__.*"
     return re.match(pattern, line) is not None
+
+
+# Convert text to MD5
+def convert_text_to_md5(text):
+    pattern = r"\[\[(.*?)\]\]"
+    matches = re.findall(pattern, text)
+    for match in matches:
+        md5_hash = hashlib.md5(match.encode()).hexdigest()
+        text = text.replace("[[{}]]".format(match), md5_hash.lower())
+    return text
+
+
+# Remove 'c' from content case-insensitive
+def remove_c_from_content(text):
+    pattern = r"\(\((.*?)\)\)"
+    matches = re.findall(pattern, text)
+    for match in matches:
+        modified_match = re.sub(r'[Cc]', '', match)
+        text = text.replace('(({}))'.format(match), modified_match)
+    return text
 
 
 # Main function
