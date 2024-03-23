@@ -36,6 +36,14 @@ def markdown_to_html(markdown_lines):
             # Convert the collected list items to HTML unordered list
             html_lines.extend(to_html_unordered_list(html_list))
             html_list = []
+        # Check if the line starts with a double asterisk (**) indicating bold text
+        elif check_line_starts_and_ends_with_asterisks(markdown_lines[i].strip()):
+            html_lines.append('{}\n'.format(
+                to_html_bold(markdown_lines[i].strip())))
+        # Check if the line starts with a double underscore (__) indicating italic text
+        elif check_line_starts_and_ends_with_double_underscores(markdown_lines[i].strip()):
+            html_lines.append('{}\n'.format(
+                to_html_italic(markdown_lines[i].strip())))
         # Check if the line starts with a asterisk (*) indicating an unordered list item
         elif markdown_lines[i].startswith('*'):
             # Collect all consecutive lines starting with a asterisk (*) as list items
@@ -113,7 +121,10 @@ def to_html_heading(markdown_line):
 def to_html_unordered_list(markdown_lines):
     html_lines = ['<ul>\n']
     for line in markdown_lines:
-        html_lines.append('\t<li>{}</li>\n'.format(line.strip()))
+        line = to_html_bold(line.strip())
+        line = to_html_italic(line)
+
+        html_lines.append('\t<li>{}</li>\n'.format(line))
 
     html_lines.append('</ul>\n')
     return html_lines
@@ -123,7 +134,9 @@ def to_html_unordered_list(markdown_lines):
 def to_html_ordered_list(markdown_lines):
     html_lines = ['<ol>\n']
     for line in markdown_lines:
-        html_lines.append('\t<li>{}</li>\n'.format(line.strip()))
+        line = to_html_bold(line.strip())
+        line = to_html_italic(line)
+        html_lines.append('\t<li>{}</li>\n'.format(line))
 
     html_lines.append('</ol>\n')
     return html_lines
@@ -133,10 +146,14 @@ def to_html_ordered_list(markdown_lines):
 def to_html_paragraph(markdown_lines):
     html_lines = ['<p>\n']
     if len(markdown_lines) == 1:
-        html_lines.append('\t{}\n'.format(markdown_lines[0].strip()))
+        line = to_html_bold(markdown_lines[0].strip())
+        line = to_html_italic(line)
+        html_lines.append('\t{}\n'.format(line))
     else:
         for i in range(len(markdown_lines)):
-            html_lines.append('\t{}\n'.format(markdown_lines[i].strip()))
+            line = to_html_bold(markdown_lines[i].strip())
+            line = to_html_italic(line)
+            html_lines.append('\t{}\n'.format(line))
             if i < len(markdown_lines) - 1:
                 html_lines.append('\t{}\n'.format('<br />'))
 
@@ -144,18 +161,48 @@ def to_html_paragraph(markdown_lines):
     return html_lines
 
 
-# To HTML Bold
+# Extract text between asterisks
 def extract_text_between_asterisks(text):
     pattern = r"\*\*(.*?)\*\*"
     matches = re.findall(pattern, text)
     return matches
 
 
-# To HTML Italic
+# Extract text between double underscores
 def extract_text_between_double_underscores(text):
     pattern = r"\_\_(.*?)\_\_"
     matches = re.findall(pattern, text)
     return matches
+
+
+# To HTML Bold
+def to_html_bold(text):
+    matches = extract_text_between_asterisks(text)
+    for match in matches:
+        text = text.replace('**{}**'.format(match),
+                            '<b>{}</b>'.format(match))
+    return text
+
+
+# To HTML Italic
+def to_html_italic(text):
+    matches = extract_text_between_double_underscores(text)
+    for match in matches:
+        text = text.replace('__{}__'.format(match),
+                            '<em>{}</em>'.format(match))
+    return text
+
+
+# Check line starts and ends with asterisks
+def check_line_starts_and_ends_with_asterisks(line):
+    pattern = r"^\*\*.*\*\*$"
+    return re.match(pattern, line) is not None
+
+
+# Check line starts and ends with double underscores
+def check_line_starts_and_ends_with_double_underscores(line):
+    pattern = r"^__.*__$"
+    return re.match(pattern, line) is not None
 
 
 # Main function
