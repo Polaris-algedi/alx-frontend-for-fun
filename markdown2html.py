@@ -36,14 +36,25 @@ def markdown_to_html(markdown_lines):
             # Convert the collected list items to HTML unordered list
             html_lines.extend(to_html_unordered_list(html_list))
             html_list = []
-        # Check if the line starts with a double asterisk (**) indicating bold text
+
+        # Check if the line starts and ends with a double asterisk (**) indicating bold text
         elif check_line_starts_and_ends_with_asterisks(markdown_lines[i].strip()):
             html_lines.append('{}\n'.format(
                 to_html_bold(markdown_lines[i].strip())))
-        # Check if the line starts with a double underscore (__) indicating italic text
+
+        # Check if the line starts and ends with a double underscore (__) indicating italic text
         elif check_line_starts_and_ends_with_double_underscores(markdown_lines[i].strip()):
             html_lines.append('{}\n'.format(
                 to_html_italic(markdown_lines[i].strip())))
+
+        # Check if the line starts with a double asterisk (**) but doesn't end with one
+        elif check_line_starts_with_double_asterisks(markdown_lines[i].strip()):
+            html_lines.extend(to_html_paragraph(markdown_lines[i].strip()))
+
+        # Check if the line starts with a double underscore (__) but doesn't end with one
+        elif check_line_starts_with_double_underscores(markdown_lines[i].strip()):
+            html_lines.extend(to_html_paragraph(markdown_lines[i].strip()))
+
         # Check if the line starts with a asterisk (*) indicating an unordered list item
         elif markdown_lines[i].startswith('*'):
             # Collect all consecutive lines starting with a asterisk (*) as list items
@@ -53,10 +64,12 @@ def markdown_to_html(markdown_lines):
             # Convert the collected list items to HTML ordered list
             html_lines.extend(to_html_ordered_list(html_list))
             html_list = []
+
         # Check if the line starts with a hash (#) indicating a heading
         elif i < num_lines and markdown_lines[i].startswith('#'):
             # Convert the heading to HTML format
             html_lines.append(to_html_heading(markdown_lines[i]))
+
         elif i < num_lines and not markdown_lines[i].startswith(('#', '-', '*', '\n')):
             # Collect all consecutive lines as a paragraph
             while i < num_lines and not markdown_lines[i].startswith(('#', '-', '*', '\n')):
@@ -145,6 +158,9 @@ def to_html_ordered_list(markdown_lines):
 # To HTML Paragraph
 def to_html_paragraph(markdown_lines):
     html_lines = ['<p>\n']
+    if type(markdown_lines) == str:
+        markdown_lines = [markdown_lines]
+
     if len(markdown_lines) == 1:
         line = to_html_bold(markdown_lines[0].strip())
         line = to_html_italic(line)
@@ -199,9 +215,21 @@ def check_line_starts_and_ends_with_asterisks(line):
     return re.match(pattern, line) is not None
 
 
+# Check line starts with double asterisks
+def check_line_starts_with_double_asterisks(line):
+    pattern = r"^\*\*.*"
+    return re.match(pattern, line) is not None
+
+
 # Check line starts and ends with double underscores
 def check_line_starts_and_ends_with_double_underscores(line):
     pattern = r"^__.*__$"
+    return re.match(pattern, line) is not None
+
+
+# Check line starts with double underscores
+def check_line_starts_with_double_underscores(line):
+    pattern = r"^__.*"
     return re.match(pattern, line) is not None
 
 
