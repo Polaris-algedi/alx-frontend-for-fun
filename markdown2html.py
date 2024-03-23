@@ -16,9 +16,11 @@ Otherwise, it will exit with code 0 indicating successful execution.
 
 import sys
 import os
-
+import re
 
 # Convert markdown to html
+
+
 def markdown_to_html(markdown_lines):
     html_lines = []
     html_list = []
@@ -142,6 +144,21 @@ def to_html_paragraph(markdown_lines):
     return html_lines
 
 
+# To HTML Bold
+def extract_text_between_asterisks(text):
+    pattern = r"\*\*(.*?)\*\*"
+    matches = re.findall(pattern, text)
+    return matches
+
+
+# To HTML Italic
+def extract_text_between_double_underscores(text):
+    pattern = r"\_\_(.*?)\_\_"
+    matches = re.findall(pattern, text)
+    return matches
+
+
+# Main function
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         print('Usage: ./markdown2html.py README.md README.html',
